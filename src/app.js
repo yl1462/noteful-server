@@ -5,6 +5,10 @@ const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const ArticlesService = require('./articles-service')
+const xss = require('xss')
+
+// console.log(`<script>alert("xss");</script>`)
+// console.log(xss(`<script>alert("xss");</script>`))
 
 const app = express()
 
@@ -33,6 +37,11 @@ app.get('/articles/:article_id', (req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Hello, world!')
 })
+
+app.get('/xss', (req, res) => {
+  res.cookie('secretToken', '1234567890');
+  res.sendFile(__dirname + '/xss-example.html');
+});
 
 app.use(function errorHandler(error, req, res, next) {
   let response
