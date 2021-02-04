@@ -4,44 +4,21 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
-const ArticlesService = require('./articles-service')
-const xss = require('xss')
-
-// console.log(`<script>alert("xss");</script>`)
-// console.log(xss(`<script>alert("xss");</script>`))
+const articlesRouter = require('./articles/articles-router')
 
 const app = express()
 
-app.use(morgan((NODE_ENV === 'production') ? 'tiny' : 'common'))
+app.use(morgan((NODE_ENV === 'production') ? 'tiny' : 'common', {
+  skip: () => NODE_ENV === 'test'
+}))
 app.use(cors())
 app.use(helmet())
 
-app.get('/articles', (req, res, next) => {
-  const knexInstance = req.app.get('db')
-  ArticlesService.getAllArticles(knexInstance)
-    .then(articles => {
-      res.json(articles)
-    })
-    .catch(next)
-})
-
-app.get('/articles/:article_id', (req, res, next) => {
-  const knexInstance = req.app.get('db')
-  ArticlesService.getById(knexInstance, req.params.article_id)
-    .then(article => {
-      res.json(article)
-    })
-    .catch(next)
-})
+app.use('/api/articles', articlesRouter)
 
 app.get('/', (req, res) => {
   res.send('Hello, world!')
 })
-
-app.get('/xss', (req, res) => {
-  res.cookie('secretToken', '1234567890');
-  res.sendFile(__dirname + '/xss-example.html');
-});
 
 app.use(function errorHandler(error, req, res, next) {
   let response
