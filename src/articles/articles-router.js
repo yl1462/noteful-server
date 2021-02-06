@@ -1,8 +1,6 @@
-const path = require('path')
 const express = require('express')
-const xss = require('xss')
 const ArticlesService = require('./articles-service')
-
+const xss = require('xss')
 const articlesRouter = express.Router()
 const jsonParser = express.json()
 
@@ -13,6 +11,7 @@ const serializeArticle = article => ({
   content: xss(article.content),
   date_published: article.date_published,
 })
+
 
 articlesRouter
   .route('/')
@@ -27,12 +26,14 @@ articlesRouter
   .post(jsonParser, (req, res, next) => {
     const { title, content, style } = req.body
     const newArticle = { title, content, style }
-
-    for (const [key, value] of Object.entries(newArticle))
-      if (value == null)
+    for (const [key, value] of Object.entries(newArticle)) {
+      if (value == null) {
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` }
         })
+      }
+    }
+
 
     ArticlesService.insertArticle(
       req.app.get('db'),
@@ -41,8 +42,8 @@ articlesRouter
       .then(article => {
         res
           .status(201)
-          .location(path.posix.join(req.originalUrl, `/${article.id}`))
-          .json(serializeArticle(article))
+          .location(`/api/articles/${article.id}`)
+        res.json(serializeArticle(insertArticle))
       })
       .catch(next)
   })
@@ -60,8 +61,8 @@ articlesRouter
             error: { message: `Article doesn't exist` }
           })
         }
-        res.article = article
-        next()
+        res.article = article // save the article for the next middleware
+        next() // don't forget to call next so the next middleware happens!
       })
       .catch(next)
   })
@@ -73,7 +74,7 @@ articlesRouter
       req.app.get('db'),
       req.params.article_id
     )
-      .then(numRowsAffected => {
+      .then((numRowsAffected) => {
         res.status(204).end()
       })
       .catch(next)
@@ -83,12 +84,13 @@ articlesRouter
     const articleToUpdate = { title, content, style }
 
     const numberOfValues = Object.values(articleToUpdate).filter(Boolean).length
-    if (numberOfValues === 0)
+    if (numberOfValues === 0) {
       return res.status(400).json({
         error: {
-          message: `Request body must content either 'title', 'style' or 'content'`
+          message: `Request body must contain either 'title', 'style' or 'content'`
         }
       })
+    }
 
     ArticlesService.updateArticle(
       req.app.get('db'),
@@ -100,5 +102,6 @@ articlesRouter
       })
       .catch(next)
   })
+
 
 module.exports = articlesRouter
