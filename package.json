@@ -10,7 +10,8 @@
     "predeploy": "npm audit",
     "deploy": "git push heroku main",
     "migrate": "postgrator --config postgrator-config.js",
-    "migrate:test": "env NODE_ENV=test npm run migrate"
+    "migrate:test": "env NODE_ENV=test npm run migrate",
+    "seed": "psql -U dunder_mifflin -d noteful -f ./seeds/seed.noteful.sql"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.5.1",
     "postgrator-cli": "^3.2.0",
+    "uuid": "^8.3.2",
     "xss": "^1.0.8"
   },
   "devDependencies": {
