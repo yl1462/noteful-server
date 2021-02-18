@@ -1,7 +1,7 @@
 const path = require('path'),
   express = require('express'),
   xss = require('xss'),
-  uuid = require('uuid'),
+  { v4: uuidv4 } = require('uuid'),
   FoldersService = require('./folders-service'),
   foldersRouter = express.Router(),
   jsonParser = express.json();
@@ -32,7 +32,7 @@ foldersRouter
         });
       }
     }
-    newFolder.id = uuid();
+    
     newFolder.name = xss(newFolder.name);
 
     FoldersService.insertFolder(req.app.get('db'), newFolder)
