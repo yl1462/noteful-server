@@ -13,7 +13,7 @@ describe('Folders Endpoints', function() {
   before('make knex instance to simulate server', () => {
     db = knex({
       client: 'pg',
-      connection: process.env.TEST_DB_URL //Did you migrate the test database?...
+      connection: process.env.TEST_DATABASE_URL //Did you migrate the test database?...
     });
     app.set('db', db);
   });
